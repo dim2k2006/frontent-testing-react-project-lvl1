@@ -1,0 +1,45 @@
+{
+  "name": "@hexlet/code",
+  "version": "1.0.0",
+  "description": "Frontend react testing intensive. Page-loader cli tool.",
+  "bin": {
+    "hexlet": "bin/page-loader.js"
+  },
+  "engines": {
+    "node": ">=14"
+  },
+  "scripts": {
+    "test": "npx jest --bail"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dim2k2006/frontent-testing-react-project-lvl1.git"
+  },
+  "type": "module",
+  "jest": {
+    "testEnvironment": "node",
+    "transform": {},
+    "testRunner": "jest-circus/runner"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dim2k2006/frontent-testing-react-project-lvl1/issues"
+  },
+  "homepage": "https://github.com/dim2k2006/frontent-testing-react-project-lvl1#readme",
+  "dependencies": {
+    "debug": "^4.3.1",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "@jest/globals": "^26.6.2",
+    "eslint": "^7.22.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-jest": "^24.3.2",
+    "jest": "^26.6.3",
+    "jest-circus": "^26.6.3",
+    "jest-cli": "^26.6.3"
+  }
+}
