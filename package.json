@@ -30,6 +30,7 @@
   },
   "homepage": "https://github.com/dim2k2006/frontent-testing-react-project-lvl1#readme",
   "dependencies": {
+    "@jest/environment": "^26.6.2",
     "axios": "^0.21.1",
     "debug": "^4.3.1",
     "lodash": "^4.17.21"

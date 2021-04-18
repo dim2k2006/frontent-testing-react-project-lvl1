@@ -1,5 +1,5 @@
 import axios from 'axios';
-import * as fs from 'fs/promises';
+import { promises as fs } from 'fs';
 import path from 'path';
 
 const getUrlWithoutProtocol = (resourceUrl) => {
@@ -59,8 +59,10 @@ const pageLoader = (pageUrl, destPath = process.cwd()) => {
       throw new Error(`Error during page downloading. ${error}`);
     })
     .then((data) => fs.writeFile(filepath, data, 'utf-8'))
+    .catch((error) => {
+      throw new Error(`Error during file saving. ${error}`);
+    })
     .then(() => filepath);
-  // .catch // обработать ошибку сохранения файла
 };
 
 export default pageLoader;

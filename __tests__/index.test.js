@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect } from '@jest/globals';
 import os from 'os';
 import path from 'path';
-import * as fs from 'fs/promises';
+import { promises as fs } from 'fs';
 import nock from 'nock';
 import pageLoader from '../src';
 
@@ -33,5 +33,15 @@ describe('page-loader', () => {
       .reply(404);
 
     await expect(pageLoader('https://ru.hexlet.io/courses', tmpDir)).rejects.toThrow('Error during page downloading');
+  });
+
+  test('Handles an error during file saving.', async () => {
+    const response = await readFile(getFixturePath('ru-hexlet-io-courses.html'));
+
+    nock('https://ru.hexlet.io')
+      .get('/courses')
+      .reply(200, response);
+
+    await expect(pageLoader('https://ru.hexlet.io/courses', 'non-existing-folder')).rejects.toThrow('Error during file saving');
   });
 });
