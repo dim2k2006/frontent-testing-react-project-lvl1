@@ -26,4 +26,12 @@ describe('page-loader', () => {
 
     await expect(fs.access(filepath)).resolves.toBe(undefined);
   });
+
+  test('Handles an error during page downloading.', async () => {
+    nock('https://ru.hexlet.io')
+      .get('/courses')
+      .reply(404);
+
+    await expect(pageLoader('https://ru.hexlet.io/courses', tmpDir)).rejects.toThrow('Error during page downloading');
+  });
 });

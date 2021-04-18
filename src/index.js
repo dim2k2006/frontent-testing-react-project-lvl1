@@ -55,7 +55,9 @@ const pageLoader = (pageUrl, destPath = process.cwd()) => {
   return axios
     .get(pageUrl)
     .then((response) => response.data)
-    // .catch // обработать ошибку загрузки страницы
+    .catch((error) => {
+      throw new Error(`Error during page downloading. ${error}`);
+    })
     .then((data) => fs.writeFile(filepath, data, 'utf-8'))
     .then(() => filepath);
   // .catch // обработать ошибку сохранения файла
