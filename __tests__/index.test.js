@@ -15,7 +15,7 @@ describe('page-loader', () => {
     tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'page-loader-'));
   });
 
-  test('Downloads page from the network and saves it to the defined folder.', async () => {
+  test('Downloads page from the network, saves it to the defined folder and returns absolute path to the saved file.', async () => {
     const response = await readFile(getFixturePath('ru-hexlet-io-courses.html'));
 
     nock('https://ru.hexlet.io')
@@ -25,6 +25,7 @@ describe('page-loader', () => {
     const filepath = await pageLoader('https://ru.hexlet.io/courses', tmpDir);
 
     await expect(fs.access(filepath)).resolves.toBe(undefined);
+    expect(path.isAbsolute(filepath)).toBeTruthy();
   });
 
   test('Handles an error during page downloading.', async () => {

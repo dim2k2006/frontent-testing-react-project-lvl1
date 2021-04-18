@@ -62,7 +62,7 @@ const pageLoader = (pageUrl, destPath = process.cwd()) => {
     .catch((error) => {
       throw new Error(`Error during file saving. ${error}`);
     })
-    .then(() => filepath);
+    .then(() => path.resolve(filepath));
 };
 
 export default pageLoader;
