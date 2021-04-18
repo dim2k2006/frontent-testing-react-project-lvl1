@@ -48,7 +48,7 @@ const genPageFilename = (pageUrl) => {
   return `${filename}.html`;
 };
 
-const pageLoader = (pageUrl, destPath = process.cwd()) => {
+const loadPage = (pageUrl, destPath = process.cwd()) => {
   const filename = genPageFilename(pageUrl);
   const filepath = path.join(destPath, filename);
 
@@ -65,4 +65,4 @@ const pageLoader = (pageUrl, destPath = process.cwd()) => {
     .then(() => path.resolve(filepath));
 };
 
-export default pageLoader;
+export default loadPage;

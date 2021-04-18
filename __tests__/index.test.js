@@ -3,7 +3,7 @@ import os from 'os';
 import path from 'path';
 import { promises as fs } from 'fs';
 import nock from 'nock';
-import pageLoader from '../src';
+import loadPage from '../src';
 
 let tmpDir;
 
@@ -22,7 +22,7 @@ describe('page-loader', () => {
       .get('/courses')
       .reply(200, response);
 
-    const filepath = await pageLoader('https://ru.hexlet.io/courses', tmpDir);
+    const filepath = await loadPage('https://ru.hexlet.io/courses', tmpDir);
 
     await expect(fs.access(filepath)).resolves.toBe(undefined);
     expect(path.isAbsolute(filepath)).toBeTruthy();
@@ -33,7 +33,7 @@ describe('page-loader', () => {
       .get('/courses')
       .reply(404);
 
-    await expect(pageLoader('https://ru.hexlet.io/courses', tmpDir)).rejects.toThrow('Error during page downloading');
+    await expect(loadPage('https://ru.hexlet.io/courses', tmpDir)).rejects.toThrow('Error during page downloading');
   });
 
   test('Handles an error during file saving.', async () => {
@@ -43,6 +43,6 @@ describe('page-loader', () => {
       .get('/courses')
       .reply(200, response);
 
-    await expect(pageLoader('https://ru.hexlet.io/courses', 'non-existing-folder')).rejects.toThrow('Error during file saving');
+    await expect(loadPage('https://ru.hexlet.io/courses', 'non-existing-folder')).rejects.toThrow('Error during file saving');
   });
 });
