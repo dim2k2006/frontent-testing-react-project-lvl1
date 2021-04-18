@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Frontend react testing intensive. Page-loader cli tool.",
   "bin": {
-    "hexlet": "bin/page-loader.js"
+    "page-loader": "bin/pageLoader.js"
   },
   "engines": {
     "node": ">=14"
