@@ -6,6 +6,9 @@ run:
 install-deps:
 	npm install
 
+test-watch:
+	npm run test:watch
+
 test:
 	npm test
 

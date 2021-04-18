@@ -9,7 +9,8 @@
     "node": ">=14"
   },
   "scripts": {
-    "test": "npx jest --bail"
+    "test": "npx jest --bail",
+    "test:watch": "npx jest --watch"
   },
   "repository": {
     "type": "git",
@@ -29,6 +30,7 @@
   },
   "homepage": "https://github.com/dim2k2006/frontent-testing-react-project-lvl1#readme",
   "dependencies": {
+    "axios": "^0.21.1",
     "debug": "^4.3.1",
     "lodash": "^4.17.21"
   },
@@ -43,6 +45,7 @@
     "eslint-plugin-jest": "^24.3.2",
     "jest": "^26.6.3",
     "jest-circus": "^26.6.3",
-    "jest-cli": "^26.6.3"
+    "jest-cli": "^26.6.3",
+    "nock": "^13.0.11"
   }
 }
