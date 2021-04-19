@@ -125,6 +125,7 @@ const loadPage = (pageUrl, destPath = process.cwd()) => {
         .then(() => resolve({ data, assetsLinks }))
         .catch((error) => reject(error));
     }))
+    // обработать ошибку создания папки для ассетов
     // скачать ассеты
     // обработать ошибки скачивания ассетов (должна ли ошибка скачивания ресурса прерывать весь процесс??)
     .then(({ data }) => fs.writeFile(pageFilePath, data, 'utf-8'))
