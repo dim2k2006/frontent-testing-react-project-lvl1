@@ -101,6 +101,7 @@ const loadPage = (pageUrl, destPath = process.cwd()) => {
 
       images.forEach(($element) => {
         // assetUrl - /assets/professions/nodejs.png
+        // or
         // assetUrl - https://ru.hexlet.io/assets/professions/nodejs.png
         const assetUrl = $element.attr('src');
         const assetFileName = getAssetFileName(assetUrl, baseUrl);
