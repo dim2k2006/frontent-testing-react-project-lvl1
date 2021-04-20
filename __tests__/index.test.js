@@ -1,26 +1,65 @@
-import { beforeEach, describe, expect } from '@jest/globals';
+import {
+  afterAll,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+} from '@jest/globals';
 import os from 'os';
 import path from 'path';
 import { promises as fs } from 'fs';
 import nock from 'nock';
+import cheerio from 'cheerio';
+import mockFs from 'mock-fs';
 import loadPage from '../src';
 
 let tmpDir;
 
+const mockFsDefaultConfig = {
+  __tests__: mockFs.load(path.resolve('__tests__')),
+};
+
 const getFixturePath = (filename) => path.join('__tests__', '__fixtures__', filename);
+
 const readFile = (filename) => fs.readFile(filename, 'utf-8');
 
+const getAssetsFolderPath = (filepath) => {
+  const { dir } = path.parse(filepath);
+
+  const assetsFolderName = path.basename(filepath, '.html');
+  const assetsFolderPath = path.join(dir, `${assetsFolderName}_files`);
+
+  return assetsFolderPath;
+};
+
 describe('page-loader', () => {
+  afterAll(() => {
+    nock.restore();
+  });
+
+  afterEach(() => {
+    nock.cleanAll();
+    mockFs.restore();
+  });
+
   beforeEach(async () => {
+    mockFs(mockFsDefaultConfig);
+
     tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'page-loader-'));
   });
 
   test('Downloads page from the network, saves it to the defined folder and returns absolute path to the saved file.', async () => {
-    const response = await readFile(getFixturePath('ru-hexlet-io-courses.html'));
+    const page = await readFile(getFixturePath('ru-hexlet-io-courses-with-image.html'));
 
     nock('https://ru.hexlet.io')
       .get('/courses')
-      .reply(200, response);
+      .reply(200, page);
+
+    nock('https://ru.hexlet.io')
+      .get('/assets/professions/nodejs.png')
+      .replyWithFile(200, getFixturePath('nodejs.png'), {
+        'Content-Type': 'image/png',
+      });
 
     const filepath = await loadPage('https://ru.hexlet.io/courses', tmpDir);
 
@@ -33,16 +72,98 @@ describe('page-loader', () => {
       .get('/courses')
       .reply(404);
 
-    await expect(loadPage('https://ru.hexlet.io/courses', tmpDir)).rejects.toThrow('Error during page downloading');
+    await expect(loadPage('https://ru.hexlet.io/programs', tmpDir)).rejects.toThrow('Error during page downloading');
   });
 
-  test('Handles an error during file saving.', async () => {
-    const response = await readFile(getFixturePath('ru-hexlet-io-courses.html'));
+  test('Handles an error during page saving.', async () => {
+    const page = await readFile(getFixturePath('ru-hexlet-io-courses-with-image.html'));
 
     nock('https://ru.hexlet.io')
       .get('/courses')
-      .reply(200, response);
+      .reply(200, page);
 
-    await expect(loadPage('https://ru.hexlet.io/courses', 'non-existing-folder')).rejects.toThrow('Error during file saving');
+    await expect(loadPage('https://ru.hexlet.io/courses', 'non-existing-folder')).rejects.toThrow('Error during page saving');
+  });
+
+  test('Downloads page images, saves it to the asset folder and updates images links in html file.', async () => {
+    const page = await readFile(getFixturePath('ru-hexlet-io-courses-with-image.html'));
+    const expectedPage = await readFile(getFixturePath('ru-hexlet-io-courses-with-image-expected.html'));
+
+    nock('https://ru.hexlet.io')
+      .get('/courses')
+      .reply(200, page);
+
+    nock('https://ru.hexlet.io')
+      .get('/assets/professions/nodejs.png')
+      .replyWithFile(200, getFixturePath('nodejs.png'), {
+        'Content-Type': 'image/png',
+      });
+
+    const filepath = await loadPage('https://ru.hexlet.io/courses', tmpDir);
+
+    const assetsFolderPath = getAssetsFolderPath(filepath);
+    const assetFilePath = path.join(assetsFolderPath, 'ru-hexlet-io-assets-professions-nodejs.png');
+    const processedPage = await readFile(filepath);
+
+    await expect(fs.access(assetsFolderPath)).resolves.toBe(undefined);
+    await expect(fs.access(assetFilePath)).resolves.toBe(undefined);
+    expect(processedPage).toBe(cheerio.load(expectedPage).html());
+  });
+
+  test('Handles an error during assets folder creation.', async () => {
+    const page = await readFile(getFixturePath('ru-hexlet-io-courses-with-image.html'));
+
+    nock('https://ru.hexlet.io')
+      .get('/courses')
+      .reply(200, page);
+
+    nock('https://ru.hexlet.io')
+      .get('/assets/professions/nodejs.png')
+      .replyWithFile(200, getFixturePath('nodejs.png'), {
+        'Content-Type': 'image/png',
+      });
+
+    await expect(loadPage('https://ru.hexlet.io/courses', 'non-existing-folder')).rejects.toThrow('Error during assets folder creation');
+  });
+
+  test('Handles an error during assets downloading.', async () => {
+    const page = await readFile(getFixturePath('ru-hexlet-io-courses-with-image.html'));
+
+    nock('https://ru.hexlet.io')
+      .get('/courses')
+      .reply(200, page);
+
+    nock('https://ru.hexlet.io')
+      .get('/assets/professions/nodejs.png')
+      .replyWithFile(404, getFixturePath('nodejs.png'), {
+        'Content-Type': 'image/png',
+      });
+
+    await expect(loadPage('https://ru.hexlet.io/courses', tmpDir)).rejects.toThrow('Error during assets downloading');
+  });
+
+  test('Handles an error during assets saving.', async () => {
+    const mockFsConfig = {
+      ...mockFsDefaultConfig,
+      tmp: {
+        'ru-hexlet-io-courses_files': mockFs.directory({ mode: 444 }),
+      },
+    };
+
+    mockFs(mockFsConfig);
+
+    const page = await readFile(getFixturePath('ru-hexlet-io-courses-with-image.html'));
+
+    nock('https://ru.hexlet.io')
+      .get('/courses')
+      .reply(200, page);
+
+    nock('https://ru.hexlet.io')
+      .get('/assets/professions/nodejs.png')
+      .replyWithFile(200, getFixturePath('nodejs.png'), {
+        'Content-Type': 'image/png',
+      });
+
+    await expect(loadPage('https://ru.hexlet.io/courses', 'tmp')).rejects.toThrow('Error during assets saving');
   });
 });
