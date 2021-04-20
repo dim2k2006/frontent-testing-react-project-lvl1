@@ -4,3 +4,7 @@
 ### Download page
 
 [![asciicast](https://asciinema.org/a/BGQNeX95XSJLtTjvOhjKyjBz2.svg)](https://asciinema.org/a/BGQNeX95XSJLtTjvOhjKyjBz2)
+
+### Download page, and it's images
+
+[![asciicast](https://asciinema.org/a/bR6x4HIWSh5hmlSym527A1bwx.svg)](https://asciinema.org/a/bR6x4HIWSh5hmlSym527A1bwx)
