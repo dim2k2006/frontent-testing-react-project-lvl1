@@ -10,9 +10,14 @@ import path from 'path';
 import { promises as fs } from 'fs';
 import nock from 'nock';
 import cheerio from 'cheerio';
+import mockFs from 'mock-fs';
 import loadPage from '../src';
 
 let tmpDir;
+
+const mockFsConfig = {
+  __tests__: mockFs.load(path.resolve('__tests__')),
+};
 
 const getFixturePath = (filename) => path.join('__tests__', '__fixtures__', filename);
 
@@ -34,9 +39,12 @@ describe('page-loader', () => {
 
   afterEach(() => {
     nock.cleanAll();
+    mockFs.restore();
   });
 
   beforeEach(async () => {
+    mockFs(mockFsConfig);
+
     tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'page-loader-'));
   });
 
@@ -134,5 +142,19 @@ describe('page-loader', () => {
     await expect(loadPage('https://ru.hexlet.io/courses', tmpDir)).rejects.toThrow('Error during assets downloading');
   });
 
-  // обработка ошибки сохранения файла
+  // test('Handles an error during assets saving.', async () => {
+  //   const page = await readFile(getFixturePath('ru-hexlet-io-courses-with-image.html'));
+  //
+  //   nock('https://ru.hexlet.io')
+  //     .get('/courses')
+  //     .reply(200, page);
+  //
+  //   nock('https://ru.hexlet.io')
+  //     .get('/assets/professions/nodejs.png')
+  //     .replyWithFile(200, getFixturePath('nodejs.png'), {
+  //       'Content-Type': 'image/png',
+  //     });
+  //
+  //   await expect(loadPage('https://ru.hexlet.io/courses', tmpDir)).rejects.toThrow('Error during assets saving');
+  // });
 });
