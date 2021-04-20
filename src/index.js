@@ -124,9 +124,13 @@ const loadPage = (pageUrl, destPath = process.cwd()) => {
         return;
       }
 
-      fs.mkdir(assetsFolderPath)
+      fs.access(assetsFolderPath)
         .then(() => resolve({ data, assetsLinks }))
-        .catch((error) => reject(error));
+        .catch(() => {
+          fs.mkdir(assetsFolderPath)
+            .then(() => resolve({ data, assetsLinks }))
+            .catch((error) => reject(error));
+        });
     }))
     .catch((error) => {
       throw new Error(`Error during assets folder creation. ${error}`);
@@ -158,7 +162,9 @@ const loadPage = (pageUrl, destPath = process.cwd()) => {
         .catch((error) => reject(error))
         .then(() => resolve({ data }));
     }))
-    // обработать ошибку сохранения ассетов на диск
+    .catch((error) => {
+      throw new Error(`Error during assets saving. ${error}`);
+    })
     // Save page
     .then(({ data }) => fs.writeFile(pageFilePath, data, 'utf-8'))
     .catch((error) => {
