@@ -44,7 +44,7 @@ describe('page-loader', () => {
       .get('/courses')
       .reply(200, response);
 
-    await expect(loadPage('https://ru.hexlet.io/courses', 'non-existing-folder')).rejects.toThrow('Error during file saving');
+    await expect(loadPage('https://ru.hexlet.io/courses', 'non-existing-folder')).rejects.toThrow('Error during page saving');
   });
 
   // прямой тест на функциональность - сохранение картинки
@@ -71,7 +71,7 @@ describe('page-loader', () => {
     const processedPage = await readFile(filepath);
 
     await expect(fs.access(assetsFolderPath)).resolves.toBe(undefined);
-    // await expect(fs.access(assetFilePath)).resolves.toBe(undefined);
+    await expect(fs.access(assetFilePath)).resolves.toBe(undefined);
     expect(processedPage).toBe(cheerio.load(expectedPage).html());
   });
 

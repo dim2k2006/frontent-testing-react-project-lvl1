@@ -81,11 +81,13 @@ const loadPage = (pageUrl, destPath = process.cwd()) => {
   const assetsFolderPath = path.join(destPath, assetsFolderName);
 
   return axios
+    // Download the page
     .get(pageUrl)
     .then((response) => response.data)
     .catch((error) => {
       throw new Error(`Error during page downloading. ${error}`);
     })
+    // Process html
     .then((data) => {
       const $ = cheerio.load(data);
       const images = Array
@@ -97,7 +99,7 @@ const loadPage = (pageUrl, destPath = process.cwd()) => {
           return isLocalAsset(assetUrl, pageUrl);
         });
 
-      const assetsLinks = images.map(($element) => $element.attr('src'));
+      const assetsLinks = images.map(($element) => new URL($element.attr('src'), baseUrl).toString());
 
       images.forEach(($element) => {
         // assetUrl - /assets/professions/nodejs.png
@@ -114,9 +116,10 @@ const loadPage = (pageUrl, destPath = process.cwd()) => {
 
       return { data: newData, assetsLinks };
     })
+    // Create assets folder
     .then(({ data, assetsLinks }) => new Promise((resolve, reject) => {
       if (assetsLinks.length === 0) {
-        resolve({ data });
+        resolve({ data, assetsLinks: [] });
 
         return;
       }
@@ -126,12 +129,38 @@ const loadPage = (pageUrl, destPath = process.cwd()) => {
         .catch((error) => reject(error));
     }))
     // обработать ошибку создания папки для ассетов
-    // скачать ассеты
+    // Download assets
+    .then(({ data, assetsLinks }) => new Promise((resolve, reject) => {
+      const requests = assetsLinks.map((assetLink) => axios.get(assetLink, { responseType: 'arraybuffer' }));
+
+      Promise.all(requests)
+        .then((responses) => resolve({ data, assetsResponses: responses }))
+        .catch((error) => reject(error));
+    }))
     // обработать ошибки скачивания ассетов (должна ли ошибка скачивания ресурса прерывать весь процесс??)
+    // Save assets
+    .then(({ data, assetsResponses }) => new Promise((resolve, reject) => {
+      const requests = assetsResponses.map((assetResponse) => {
+        const buffer = assetResponse.data;
+        const url = new URL(assetResponse.config.url);
+        const { pathname } = url;
+        const assetFileName = getAssetFileName(pathname, baseUrl);
+        const assetFilePath = path.join(assetsFolderPath, assetFileName);
+
+        return fs.writeFile(assetFilePath, buffer);
+      });
+
+      Promise.all(requests)
+        .then(() => resolve({ data }))
+        .catch((error) => reject(error));
+    }))
+    // обработать ошибку сохранения ассетов на диск
+    // Save page
     .then(({ data }) => fs.writeFile(pageFilePath, data, 'utf-8'))
     .catch((error) => {
-      throw new Error(`Error during file saving. ${error}`);
+      throw new Error(`Error during page saving. ${error}`);
     })
+    // Return path to the saved page
     .then(() => path.resolve(pageFilePath));
 };
 
