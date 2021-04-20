@@ -199,7 +199,7 @@ describe('page-loader', () => {
     const assetsFolderPath = getAssetsFolderPath(filepath);
     const assetsPaths = [
       path.join(assetsFolderPath, 'ru-hexlet-io-assets-application.css'),
-      // path.join(assetsFolderPath, 'ru-hexlet-io-courses.html'),
+      path.join(assetsFolderPath, 'ru-hexlet-io-courses.html'),
       path.join(assetsFolderPath, 'ru-hexlet-io-assets-professions-nodejs.png'),
       path.join(assetsFolderPath, 'ru-hexlet-io-packs-js-runtime.js'),
     ];
