@@ -65,7 +65,9 @@ const transformString = (string) => {
 const getAssetFileName = (assetUrl, baseUrl) => {
   const absoluteAssetUrl = new URL(assetUrl, baseUrl).pathname; // /assets/professions/nodejs.png
   const { dir, base } = path.parse(absoluteAssetUrl);
-  const result = `${transformString(`${getUrlWithoutProtocol(baseUrl)}${dir}`)}-${base}`; // ru-hexlet-io-assets-professions-nodejs.png
+  const newDir = dir.length > 1 ? `${dir}/` : dir;
+
+  const result = `${transformString(`${getUrlWithoutProtocol(baseUrl)}${newDir}`)}${base}`; // ru-hexlet-io-assets-professions-nodejs.png
 
   return result;
 };
