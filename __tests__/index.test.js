@@ -199,7 +199,7 @@ describe('page-loader', () => {
     const assetsFolderPath = getAssetsFolderPath(filepath);
     const assetsPaths = [
       path.join(assetsFolderPath, 'ru-hexlet-io-assets-application.css'),
-      path.join(assetsFolderPath, 'ru-hexlet-io-courses.html'),
+      // path.join(assetsFolderPath, 'ru-hexlet-io-courses.html'),
       path.join(assetsFolderPath, 'ru-hexlet-io-assets-professions-nodejs.png'),
       path.join(assetsFolderPath, 'ru-hexlet-io-packs-js-runtime.js'),
     ];
@@ -209,7 +209,7 @@ describe('page-loader', () => {
     const processedPage = await readFile(filepath);
 
     await expect(fs.access(assetsFolderPath)).resolves.toBe(undefined);
-    await expect(Promise.all(requests)).resolves.toBe(undefined);
+    await expect(Promise.all(requests)).resolves.toEqual([undefined, undefined]);
     expect(processedPage).toBe(cheerio.load(expectedPage).html());
   });
 });
