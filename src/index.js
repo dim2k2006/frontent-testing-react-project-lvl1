@@ -3,6 +3,22 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import cheerio from 'cheerio';
 
+const sources = {
+  img: 'src',
+  link: 'href',
+  script: 'src',
+};
+
+const getSrcAttrName = (tagName) => {
+  const attrName = sources[tagName];
+
+  if (!attrName) {
+    throw new Error(`Can not retrieve attribute name for tag "${tagName}".`);
+  }
+
+  return attrName;
+};
+
 const isLocalAsset = (assetUrl, pageUrl) => {
   if (assetUrl.startsWith('/')) return true;
 
@@ -64,10 +80,13 @@ const transformString = (string) => {
 
 const getAssetFileName = (assetUrl, baseUrl) => {
   const absoluteAssetUrl = new URL(assetUrl, baseUrl).pathname; // /assets/professions/nodejs.png
-  const { dir, base } = path.parse(absoluteAssetUrl);
+  const { dir, name, ext } = path.parse(absoluteAssetUrl);
+
+  const newExt = !ext ? '.html' : ext;
+
   const newDir = dir.length > 1 ? `${dir}/` : dir;
 
-  const result = `${transformString(`${getUrlWithoutProtocol(baseUrl)}${newDir}`)}${base}`; // ru-hexlet-io-assets-professions-nodejs.png
+  const result = `${transformString(`${getUrlWithoutProtocol(baseUrl)}${newDir}`)}${name}${newExt}`; // ru-hexlet-io-assets-professions-nodejs.png
 
   return result;
 };
@@ -89,26 +108,34 @@ const loadPage = (pageUrl, destPath = process.cwd()) => {
     // Process html
     .then((data) => {
       const $ = cheerio.load(data);
-      const images = Array
-        .from($('img'))
+      const assets = Array
+        .from($('img, script[src], link'))
         .map((element) => $(element))
         .filter(($element) => {
-          const assetUrl = new URL($element.attr('src'), baseUrl).toString();
+          const tagName = $element[0].name;
+          const assetUrl = new URL($element.attr(getSrcAttrName(tagName)), baseUrl)
+            .toString();
 
           return isLocalAsset(assetUrl, pageUrl);
         });
 
-      const assetsLinks = images.map(($element) => new URL($element.attr('src'), baseUrl).toString());
+      const assetsLinks = assets.map(($element) => {
+        const tagName = $element[0].name;
+        const result = new URL($element.attr(getSrcAttrName(tagName)), baseUrl).toString();
 
-      images.forEach(($element) => {
+        return result;
+      });
+
+      assets.forEach(($element) => {
         // assetUrl - /assets/professions/nodejs.png
         // or
         // assetUrl - https://ru.hexlet.io/assets/professions/nodejs.png
-        const assetUrl = $element.attr('src');
+        const tagName = $element[0].name;
+        const assetUrl = $element.attr(getSrcAttrName(tagName));
         const assetFileName = getAssetFileName(assetUrl, baseUrl);
         const assetFilePath = path.join(assetsFolderName, assetFileName);
 
-        $element.attr('src', assetFilePath);
+        $element.attr(getSrcAttrName(tagName), assetFilePath);
       });
 
       const newData = $.html();
