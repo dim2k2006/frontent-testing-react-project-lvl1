@@ -17,9 +17,10 @@ let tmpDir;
 
 const mockFsDefaultConfig = {
   __tests__: mockFs.load(path.resolve('__tests__')),
+  __fixtures__: mockFs.load(path.resolve('__fixtures__')),
 };
 
-const getFixturePath = (filename) => path.join('__tests__', '__fixtures__', filename);
+const getFixturePath = (filename) => path.join('__fixtures__', filename);
 
 const readFile = (filename) => fs.readFile(filename, 'utf-8');
 
@@ -165,5 +166,50 @@ describe('page-loader', () => {
       });
 
     await expect(loadPage('https://ru.hexlet.io/courses', 'tmp')).rejects.toThrow('Error: EACCES, permission denied \'tmp/ru-hexlet-io-courses_files/ru-hexlet-io-assets-professions-nodejs.png\'');
+  });
+
+  test('Downloads page assets, saves it to the asset folder and updates assets links in html file.', async () => {
+    const page = await readFile(getFixturePath('ru-hexlet-io-courses-with-assets.html'));
+    const expectedPage = await readFile(getFixturePath('ru-hexlet-io-courses-with-assets-expected.html'));
+
+    nock('https://ru.hexlet.io')
+      .get('/courses')
+      .reply(200, page);
+
+    nock('https://ru.hexlet.io')
+      .get('/assets/application.css')
+      .replyWithFile(200, getFixturePath('application.css'), {
+        'Content-Type': 'text/css',
+      });
+
+    nock('https://ru.hexlet.io')
+      .get('/assets/professions/nodejs.png')
+      .replyWithFile(200, getFixturePath('nodejs.png'), {
+        'Content-Type': 'image/png',
+      });
+
+    nock('https://ru.hexlet.io')
+      .get('/packs/js/runtime.js')
+      .replyWithFile(200, getFixturePath('runtime.js'), {
+        'Content-Type': 'text/javascript',
+      });
+
+    const filepath = await loadPage('https://ru.hexlet.io/courses', tmpDir);
+
+    const assetsFolderPath = getAssetsFolderPath(filepath);
+    const assetsPaths = [
+      path.join(assetsFolderPath, 'ru-hexlet-io-assets-application.css'),
+      path.join(assetsFolderPath, 'ru-hexlet-io-courses.html'),
+      path.join(assetsFolderPath, 'ru-hexlet-io-assets-professions-nodejs.png'),
+      path.join(assetsFolderPath, 'ru-hexlet-io-packs-js-runtime.js'),
+    ];
+
+    const requests = assetsPaths.map((assetPath) => fs.access(assetPath));
+
+    const processedPage = await readFile(filepath);
+
+    await expect(fs.access(assetsFolderPath)).resolves.toBe(undefined);
+    await expect(Promise.all(requests)).resolves.toBe(undefined);
+    expect(processedPage).toBe(cheerio.load(expectedPage).html());
   });
 });
