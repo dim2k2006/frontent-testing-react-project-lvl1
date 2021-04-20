@@ -9,7 +9,17 @@ import loadPage from '../src';
 let tmpDir;
 
 const getFixturePath = (filename) => path.join('__tests__', '__fixtures__', filename);
+
 const readFile = (filename) => fs.readFile(filename, 'utf-8');
+
+const getAssetsFolderPath = (filepath) => {
+  const { dir } = path.parse(filepath);
+
+  const assetsFolderName = path.basename(filepath, '.html');
+  const assetsFolderPath = path.join(dir, `${assetsFolderName}_files`);
+
+  return assetsFolderPath;
+};
 
 describe('page-loader', () => {
   beforeEach(async () => {
@@ -64,9 +74,7 @@ describe('page-loader', () => {
 
     const filepath = await loadPage('https://ru.hexlet.io/courses', tmpDir); // вот этот фалй должен содержать измененные ссылки
 
-    const { dir } = path.parse(filepath);
-    const assetsFolderName = path.basename(filepath, '.html');
-    const assetsFolderPath = path.join(dir, `${assetsFolderName}_files`);
+    const assetsFolderPath = getAssetsFolderPath(filepath);
     const assetFilePath = path.join(assetsFolderPath, 'ru-hexlet-io-assets-professions-nodejs.png');
     const processedPage = await readFile(filepath);
 
