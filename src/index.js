@@ -80,10 +80,13 @@ const transformString = (string) => {
 
 const getAssetFileName = (assetUrl, baseUrl) => {
   const absoluteAssetUrl = new URL(assetUrl, baseUrl).pathname; // /assets/professions/nodejs.png
-  const { dir, base } = path.parse(absoluteAssetUrl);
+  const { dir, name, ext } = path.parse(absoluteAssetUrl);
+
+  const newExt = !ext ? '.html' : ext;
+
   const newDir = dir.length > 1 ? `${dir}/` : dir;
 
-  const result = `${transformString(`${getUrlWithoutProtocol(baseUrl)}${newDir}`)}${base}`; // ru-hexlet-io-assets-professions-nodejs.png
+  const result = `${transformString(`${getUrlWithoutProtocol(baseUrl)}${newDir}`)}${name}${newExt}`; // ru-hexlet-io-assets-professions-nodejs.png
 
   return result;
 };
@@ -132,7 +135,7 @@ const loadPage = (pageUrl, destPath = process.cwd()) => {
         const assetFileName = getAssetFileName(assetUrl, baseUrl);
         const assetFilePath = path.join(assetsFolderName, assetFileName);
 
-        $element.attr('src', assetFilePath);
+        $element.attr(getSrcAttrName(tagName), assetFilePath);
       });
 
       const newData = $.html();

@@ -177,6 +177,12 @@ describe('page-loader', () => {
       .reply(200, page);
 
     nock('https://ru.hexlet.io')
+      .get('/courses')
+      .replyWithFile(200, getFixturePath('ru-hexlet-io-courses-with-assets.html'), {
+        'Content-Type': 'text/html',
+      });
+
+    nock('https://ru.hexlet.io')
       .get('/assets/application.css')
       .replyWithFile(200, getFixturePath('application.css'), {
         'Content-Type': 'text/css',
@@ -209,7 +215,7 @@ describe('page-loader', () => {
     const processedPage = await readFile(filepath);
 
     await expect(fs.access(assetsFolderPath)).resolves.toBe(undefined);
-    await expect(Promise.all(requests)).resolves.toEqual([undefined, undefined]);
+    await expect(Promise.all(requests)).resolves.toEqual(expect.arrayContaining([undefined]));
     expect(processedPage).toBe(cheerio.load(expectedPage).html());
   });
 });
