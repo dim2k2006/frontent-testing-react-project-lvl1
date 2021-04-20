@@ -8,3 +8,7 @@
 ### Download page, and it's images
 
 [![asciicast](https://asciinema.org/a/bR6x4HIWSh5hmlSym527A1bwx.svg)](https://asciinema.org/a/bR6x4HIWSh5hmlSym527A1bwx)
+
+### Download page, and all it's assets
+
+[![asciicast](https://asciinema.org/a/pPBT1bVGvUxQWwb19P4tHyIbx.svg)](https://asciinema.org/a/pPBT1bVGvUxQWwb19P4tHyIbx)
