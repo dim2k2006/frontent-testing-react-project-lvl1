@@ -91,7 +91,7 @@ const loadPage = (pageUrl, destPath = process.cwd()) => {
         .from($('img'))
         .map((element) => $(element))
         .filter(($element) => {
-          const assetUrl = $element.attr('src');
+          const assetUrl = new URL($element.attr('src'), baseUrl).toString();
 
           return isLocalAsset(assetUrl, pageUrl);
         });
