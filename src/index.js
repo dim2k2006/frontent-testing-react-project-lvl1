@@ -84,9 +84,6 @@ const loadPage = (pageUrl, destPath = process.cwd()) => {
     // Download the page
     .get(pageUrl)
     .then((response) => response.data)
-    .catch((error) => {
-      throw new Error(`Error during page downloading. ${error}`);
-    })
     // Process html
     .then((data) => {
       const $ = cheerio.load(data);
@@ -132,9 +129,6 @@ const loadPage = (pageUrl, destPath = process.cwd()) => {
             .catch((error) => reject(error));
         });
     }))
-    .catch((error) => {
-      throw new Error(`Error during assets folder creation. ${error}`);
-    })
     // Download assets
     .then(({ data, assetsLinks }) => new Promise((resolve, reject) => {
       const requests = assetsLinks.map((assetLink) => axios.get(assetLink, { responseType: 'arraybuffer' }));
@@ -143,9 +137,6 @@ const loadPage = (pageUrl, destPath = process.cwd()) => {
         .catch((error) => reject(error))
         .then((responses) => resolve({ data, assetsResponses: responses }));
     }))
-    .catch((error) => {
-      throw new Error(`Error during assets downloading. ${error}`);
-    })
     // Save assets
     .then(({ data, assetsResponses }) => new Promise((resolve, reject) => {
       const requests = assetsResponses.map((assetResponse) => {
@@ -162,16 +153,13 @@ const loadPage = (pageUrl, destPath = process.cwd()) => {
         .catch((error) => reject(error))
         .then(() => resolve({ data }));
     }))
-    .catch((error) => {
-      throw new Error(`Error during assets saving. ${error}`);
-    })
     // Save page
     .then(({ data }) => fs.writeFile(pageFilePath, data, 'utf-8'))
-    .catch((error) => {
-      throw new Error(`Error during page saving. ${error}`);
-    })
     // Return path to the saved page
-    .then(() => path.resolve(pageFilePath));
+    .then(() => path.resolve(pageFilePath))
+    .catch((error) => {
+      throw new Error(error);
+    });
 };
 
 export default loadPage;

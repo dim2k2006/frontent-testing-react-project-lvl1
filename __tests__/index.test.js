@@ -72,7 +72,7 @@ describe('page-loader', () => {
       .get('/courses')
       .reply(404);
 
-    await expect(loadPage('https://ru.hexlet.io/programs', tmpDir)).rejects.toThrow('Error during page downloading');
+    await expect(loadPage('https://ru.hexlet.io/courses', tmpDir)).rejects.toThrow('Error: Request failed with status code 404');
   });
 
   test('Handles an error during page saving.', async () => {
@@ -82,7 +82,7 @@ describe('page-loader', () => {
       .get('/courses')
       .reply(200, page);
 
-    await expect(loadPage('https://ru.hexlet.io/courses', 'non-existing-folder')).rejects.toThrow('Error during page saving');
+    await expect(loadPage('https://ru.hexlet.io/courses', 'non-existing-folder')).rejects.toThrow('Error: ENOENT, no such file or directory \'non-existing-folder/ru-hexlet-io-courses_files\'');
   });
 
   test('Downloads page images, saves it to the asset folder and updates images links in html file.', async () => {
@@ -123,7 +123,7 @@ describe('page-loader', () => {
         'Content-Type': 'image/png',
       });
 
-    await expect(loadPage('https://ru.hexlet.io/courses', 'non-existing-folder')).rejects.toThrow('Error during assets folder creation');
+    await expect(loadPage('https://ru.hexlet.io/courses', 'non-existing-folder')).rejects.toThrow('Error: ENOENT, no such file or directory \'non-existing-folder/ru-hexlet-io-courses_files\'');
   });
 
   test('Handles an error during assets downloading.', async () => {
@@ -139,7 +139,7 @@ describe('page-loader', () => {
         'Content-Type': 'image/png',
       });
 
-    await expect(loadPage('https://ru.hexlet.io/courses', tmpDir)).rejects.toThrow('Error during assets downloading');
+    await expect(loadPage('https://ru.hexlet.io/courses', tmpDir)).rejects.toThrow('Error: Request failed with status code 404');
   });
 
   test('Handles an error during assets saving.', async () => {
@@ -164,6 +164,6 @@ describe('page-loader', () => {
         'Content-Type': 'image/png',
       });
 
-    await expect(loadPage('https://ru.hexlet.io/courses', 'tmp')).rejects.toThrow('Error during assets saving');
+    await expect(loadPage('https://ru.hexlet.io/courses', 'tmp')).rejects.toThrow('Error: EACCES, permission denied \'tmp/ru-hexlet-io-courses_files/ru-hexlet-io-assets-professions-nodejs.png\'');
   });
 });
