@@ -136,10 +136,12 @@ const loadPage = (pageUrl, destPath = process.cwd()) => {
       const requests = assetsLinks.map((assetLink) => axios.get(assetLink, { responseType: 'arraybuffer' }));
 
       Promise.all(requests)
-        .then((responses) => resolve({ data, assetsResponses: responses }))
-        .catch((error) => reject(error));
+        .catch((error) => reject(error))
+        .then((responses) => resolve({ data, assetsResponses: responses }));
     }))
-    // обработать ошибки скачивания ассетов (должна ли ошибка скачивания ресурса прерывать весь процесс??)
+    .catch((error) => {
+      throw new Error(`Error during assets downloading. ${error}`);
+    })
     // Save assets
     .then(({ data, assetsResponses }) => new Promise((resolve, reject) => {
       const requests = assetsResponses.map((assetResponse) => {
@@ -153,8 +155,8 @@ const loadPage = (pageUrl, destPath = process.cwd()) => {
       });
 
       Promise.all(requests)
-        .then(() => resolve({ data }))
-        .catch((error) => reject(error));
+        .catch((error) => reject(error))
+        .then(() => resolve({ data }));
     }))
     // обработать ошибку сохранения ассетов на диск
     // Save page
