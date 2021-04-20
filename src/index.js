@@ -128,7 +128,9 @@ const loadPage = (pageUrl, destPath = process.cwd()) => {
         .then(() => resolve({ data, assetsLinks }))
         .catch((error) => reject(error));
     }))
-    // обработать ошибку создания папки для ассетов
+    .catch((error) => {
+      throw new Error(`Error during assets folder creation. ${error}`);
+    })
     // Download assets
     .then(({ data, assetsLinks }) => new Promise((resolve, reject) => {
       const requests = assetsLinks.map((assetLink) => axios.get(assetLink, { responseType: 'arraybuffer' }));
