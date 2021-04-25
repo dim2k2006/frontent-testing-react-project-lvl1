@@ -12,3 +12,7 @@
 ### Download page, and all it's assets
 
 [![asciicast](https://asciinema.org/a/pPBT1bVGvUxQWwb19P4tHyIbx.svg)](https://asciinema.org/a/pPBT1bVGvUxQWwb19P4tHyIbx)
+
+### Enable debug
+
+[![asciicast](https://asciinema.org/a/ahdRC1oVex1CqPax2CyumYTMT.svg)](https://asciinema.org/a/ahdRC1oVex1CqPax2CyumYTMT)
