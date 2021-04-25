@@ -2,6 +2,10 @@ import axios from 'axios';
 import { promises as fs } from 'fs';
 import path from 'path';
 import cheerio from 'cheerio';
+import debug from 'debug';
+import 'axios-debug-log';
+
+const log = debug('page-loader');
 
 const sources = {
   img: 'src',
@@ -101,12 +105,16 @@ const loadPage = (pageUrl, destPath = process.cwd()) => {
   const pageFilePath = path.join(destPath, pageFileName);
   const assetsFolderPath = path.join(destPath, assetsFolderName);
 
+  log(`Fetching page ${pageUrl}`);
+
   return axios
     // Download the page
     .get(pageUrl)
     .then((response) => response.data)
     // Process html
     .then((data) => {
+      log(`Processing page ${pageUrl}`);
+
       const $ = cheerio.load(data);
       const assets = Array
         .from($('img, script[src], link'))
@@ -150,6 +158,8 @@ const loadPage = (pageUrl, destPath = process.cwd()) => {
         return;
       }
 
+      log('Creating assets folder');
+
       fs.access(assetsFolderPath)
         .then(() => resolve({ data, assetsLinks }))
         .catch(() => {
@@ -160,6 +170,8 @@ const loadPage = (pageUrl, destPath = process.cwd()) => {
     }))
     // Download assets
     .then(({ data, assetsLinks }) => new Promise((resolve, reject) => {
+      log('Fetching assets');
+
       const requests = assetsLinks.map((assetLink) => axios.get(assetLink, { responseType: 'arraybuffer' }));
 
       Promise.all(requests)
@@ -168,6 +180,8 @@ const loadPage = (pageUrl, destPath = process.cwd()) => {
     }))
     // Save assets
     .then(({ data, assetsResponses }) => new Promise((resolve, reject) => {
+      log('Saving assets to the fs');
+
       const requests = assetsResponses.map((assetResponse) => {
         const buffer = assetResponse.data;
         const url = new URL(assetResponse.config.url);
@@ -183,7 +197,11 @@ const loadPage = (pageUrl, destPath = process.cwd()) => {
         .then(() => resolve({ data }));
     }))
     // Save page
-    .then(({ data }) => fs.writeFile(pageFilePath, data, 'utf-8'))
+    .then(({ data }) => {
+      log('Saving page to the fs');
+
+      return fs.writeFile(pageFilePath, data, 'utf-8');
+    })
     // Return path to the saved page
     .then(() => path.resolve(pageFilePath))
     .catch((error) => {
