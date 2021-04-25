@@ -16,3 +16,7 @@
 ### Enable debug
 
 [![asciicast](https://asciinema.org/a/ahdRC1oVex1CqPax2CyumYTMT.svg)](https://asciinema.org/a/ahdRC1oVex1CqPax2CyumYTMT)
+
+### Error handling
+
+[![asciicast](https://asciinema.org/a/MfkNaMvcmv6wEGHHoAYNypwn7.svg)](https://asciinema.org/a/MfkNaMvcmv6wEGHHoAYNypwn7)
