@@ -20,7 +20,7 @@ const mockFsDefaultConfig = {
   __fixtures__: mockFs.load(path.resolve('__fixtures__')),
 };
 
-const getFixturePath = (filename) => path.join('__fixtures__', filename);
+const getFixturePath = (filename) => path.join(__dirname, '..', '__fixtures__', filename);
 
 const readFile = (filename) => fs.readFile(filename, 'utf-8');
 
