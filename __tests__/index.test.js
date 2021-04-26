@@ -10,15 +10,9 @@ import path from 'path';
 import { promises as fs } from 'fs';
 import nock from 'nock';
 import cheerio from 'cheerio';
-import mockFs from 'mock-fs';
 import loadPage from '../src';
 
 let tmpDir;
-
-const mockFsDefaultConfig = {
-  __tests__: mockFs.load(path.resolve('__tests__')),
-  __fixtures__: mockFs.load(path.resolve('__fixtures__')),
-};
 
 const getFixturePath = (filename) => path.join(__dirname, '..', '__fixtures__', filename);
 
@@ -40,12 +34,9 @@ describe('page-loader', () => {
 
   afterEach(() => {
     nock.cleanAll();
-    mockFs.restore();
   });
 
   beforeEach(async () => {
-    mockFs(mockFsDefaultConfig);
-
     tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'page-loader-'));
   });
 
@@ -83,7 +74,7 @@ describe('page-loader', () => {
       .get('/courses')
       .reply(200, page);
 
-    await expect(loadPage('https://ru.hexlet.io/courses', 'non-existing-folder')).rejects.toThrow('Error: ENOENT, no such file or directory \'non-existing-folder/ru-hexlet-io-courses_files\'');
+    await expect(loadPage('https://ru.hexlet.io/courses', 'non-existing-folder')).rejects.toThrow(/ENOENT/);
   });
 
   test('Downloads page images, saves it to the asset folder and updates images links in html file.', async () => {
@@ -124,7 +115,7 @@ describe('page-loader', () => {
         'Content-Type': 'image/png',
       });
 
-    await expect(loadPage('https://ru.hexlet.io/courses', 'non-existing-folder')).rejects.toThrow('Error: ENOENT, no such file or directory \'non-existing-folder/ru-hexlet-io-courses_files\'');
+    await expect(loadPage('https://ru.hexlet.io/courses', 'non-existing-folder')).rejects.toThrow(/ENOENT/);
   });
 
   test('Handles an error during assets downloading.', async () => {
@@ -144,15 +135,6 @@ describe('page-loader', () => {
   });
 
   test('Handles an error during assets saving.', async () => {
-    const mockFsConfig = {
-      ...mockFsDefaultConfig,
-      tmp: {
-        'ru-hexlet-io-courses_files': mockFs.directory({ mode: 444 }),
-      },
-    };
-
-    mockFs(mockFsConfig);
-
     const page = await readFile(getFixturePath('ru-hexlet-io-courses-with-image.html'));
 
     nock('https://ru.hexlet.io')
@@ -165,7 +147,7 @@ describe('page-loader', () => {
         'Content-Type': 'image/png',
       });
 
-    await expect(loadPage('https://ru.hexlet.io/courses', 'tmp')).rejects.toThrow('Error: EACCES, permission denied \'tmp/ru-hexlet-io-courses_files/ru-hexlet-io-assets-professions-nodejs.png\'');
+    await expect(loadPage('https://ru.hexlet.io/courses', '/sys')).rejects.toThrow();
   });
 
   test('Downloads page assets, saves it to the asset folder and updates assets links in html file.', async () => {
