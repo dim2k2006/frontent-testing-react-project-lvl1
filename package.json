@@ -10,17 +10,15 @@
     "node": ">=14"
   },
   "scripts": {
-    "test": "npx jest --bail",
+    "test": "npx jest",
     "test:watch": "npx jest --watch"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/dim2k2006/frontent-testing-react-project-lvl1.git"
   },
-  "type": "module",
   "jest": {
-    "testEnvironment": "node",
-    "transform": {}
+    "testEnvironment": "node"
   },
   "keywords": [],
   "author": "",
