@@ -28,6 +28,20 @@ const getAssetsFolderPath = (filepath) => {
   return assetsFolderPath;
 };
 
+const files = [
+  { filename: 'nodejs.png', url: '/assets/professions', contentType: 'image/png' },
+  { filename: 'application.css', url: '/assets', contentType: 'text/css' },
+  { filename: 'runtime.js', url: '/packs/js', contentType: 'text/javascript' },
+];
+
+const mockFiles = () => files.forEach((file) => {
+  nock(basePath)
+    .get(`${file.url}/${file.filename}`)
+    .replyWithFile(200, getFixturePath(file.filename), {
+      'Content-Type': file.contentType,
+    });
+});
+
 describe('page-loader', () => {
   afterAll(() => {
     nock.restore();
@@ -39,6 +53,8 @@ describe('page-loader', () => {
 
   beforeEach(async () => {
     tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'page-loader-'));
+
+    mockFiles();
   });
 
   test('Downloads page from the network, saves it to the defined folder and returns absolute path to the saved file.', async () => {
@@ -47,12 +63,6 @@ describe('page-loader', () => {
     nock(basePath)
       .get('/courses')
       .reply(200, page);
-
-    nock(basePath)
-      .get('/assets/professions/nodejs.png')
-      .replyWithFile(200, getFixturePath('nodejs.png'), {
-        'Content-Type': 'image/png',
-      });
 
     const filepath = await loadPage(`${basePath}/courses`, tmpDir);
 
@@ -86,12 +96,6 @@ describe('page-loader', () => {
       .get('/courses')
       .reply(200, page);
 
-    nock(basePath)
-      .get('/assets/professions/nodejs.png')
-      .replyWithFile(200, getFixturePath('nodejs.png'), {
-        'Content-Type': 'image/png',
-      });
-
     const filepath = await loadPage(`${basePath}/courses`, tmpDir);
 
     const assetsFolderPath = getAssetsFolderPath(filepath);
@@ -110,29 +114,7 @@ describe('page-loader', () => {
       .get('/courses')
       .reply(200, page);
 
-    nock(basePath)
-      .get('/assets/professions/nodejs.png')
-      .replyWithFile(200, getFixturePath('nodejs.png'), {
-        'Content-Type': 'image/png',
-      });
-
     await expect(loadPage(`${basePath}/courses`, 'non-existing-folder')).rejects.toThrow(/ENOENT/);
-  });
-
-  test('Handles an error during assets downloading.', async () => {
-    const page = await readFile(getFixturePath('ru-hexlet-io-courses-with-image.html'));
-
-    nock(basePath)
-      .get('/courses')
-      .reply(200, page);
-
-    nock(basePath)
-      .get('/assets/professions/nodejs.png')
-      .replyWithFile(404, getFixturePath('nodejs.png'), {
-        'Content-Type': 'image/png',
-      });
-
-    await expect(loadPage(`${basePath}/courses`, tmpDir)).rejects.toThrow('Error: Request failed with status code 404');
   });
 
   test('Handles an error during assets saving.', async () => {
@@ -141,12 +123,6 @@ describe('page-loader', () => {
     nock(basePath)
       .get('/courses')
       .reply(200, page);
-
-    nock(basePath)
-      .get('/assets/professions/nodejs.png')
-      .replyWithFile(200, getFixturePath('nodejs.png'), {
-        'Content-Type': 'image/png',
-      });
 
     await expect(loadPage(`${basePath}/courses`, '/sys')).rejects.toThrow();
   });
@@ -163,24 +139,6 @@ describe('page-loader', () => {
       .get('/courses')
       .replyWithFile(200, getFixturePath('ru-hexlet-io-courses-with-assets.html'), {
         'Content-Type': 'text/html',
-      });
-
-    nock(basePath)
-      .get('/assets/application.css')
-      .replyWithFile(200, getFixturePath('application.css'), {
-        'Content-Type': 'text/css',
-      });
-
-    nock(basePath)
-      .get('/assets/professions/nodejs.png')
-      .replyWithFile(200, getFixturePath('nodejs.png'), {
-        'Content-Type': 'image/png',
-      });
-
-    nock(basePath)
-      .get('/packs/js/runtime.js')
-      .replyWithFile(200, getFixturePath('runtime.js'), {
-        'Content-Type': 'text/javascript',
       });
 
     const filepath = await loadPage(`${basePath}/courses`, tmpDir);
