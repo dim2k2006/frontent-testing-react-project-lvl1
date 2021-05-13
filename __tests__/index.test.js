@@ -14,6 +14,8 @@ import loadPage from '../src';
 
 let tmpDir;
 
+const basePath = 'https://ru.hexlet.io';
+
 const getFixturePath = (filename) => path.join(__dirname, '..', '__fixtures__', filename);
 
 const readFile = (filename) => fs.readFile(filename, 'utf-8');
@@ -43,11 +45,11 @@ describe('page-loader', () => {
   test('Downloads page from the network, saves it to the defined folder and returns absolute path to the saved file.', async () => {
     const page = await readFile(getFixturePath('ru-hexlet-io-courses-with-image.html'));
 
-    nock('https://ru.hexlet.io')
+    nock(basePath)
       .get('/courses')
       .reply(200, page);
 
-    nock('https://ru.hexlet.io')
+    nock(basePath)
       .get('/assets/professions/nodejs.png')
       .replyWithFile(200, getFixturePath('nodejs.png'), {
         'Content-Type': 'image/png',
@@ -60,7 +62,7 @@ describe('page-loader', () => {
   });
 
   test('Handles an error during page downloading.', async () => {
-    nock('https://ru.hexlet.io')
+    nock(basePath)
       .get('/courses')
       .reply(404);
 
@@ -70,7 +72,7 @@ describe('page-loader', () => {
   test('Handles an error during page saving.', async () => {
     const page = await readFile(getFixturePath('ru-hexlet-io-courses-with-image.html'));
 
-    nock('https://ru.hexlet.io')
+    nock(basePath)
       .get('/courses')
       .reply(200, page);
 
@@ -81,11 +83,11 @@ describe('page-loader', () => {
     const page = await readFile(getFixturePath('ru-hexlet-io-courses-with-image.html'));
     const expectedPage = await readFile(getFixturePath(path.join('expected', 'ru-hexlet-io-courses-with-image.html')));
 
-    nock('https://ru.hexlet.io')
+    nock(basePath)
       .get('/courses')
       .reply(200, page);
 
-    nock('https://ru.hexlet.io')
+    nock(basePath)
       .get('/assets/professions/nodejs.png')
       .replyWithFile(200, getFixturePath('nodejs.png'), {
         'Content-Type': 'image/png',
@@ -105,11 +107,11 @@ describe('page-loader', () => {
   test('Handles an error during assets folder creation.', async () => {
     const page = await readFile(getFixturePath('ru-hexlet-io-courses-with-image.html'));
 
-    nock('https://ru.hexlet.io')
+    nock(basePath)
       .get('/courses')
       .reply(200, page);
 
-    nock('https://ru.hexlet.io')
+    nock(basePath)
       .get('/assets/professions/nodejs.png')
       .replyWithFile(200, getFixturePath('nodejs.png'), {
         'Content-Type': 'image/png',
@@ -121,11 +123,11 @@ describe('page-loader', () => {
   test('Handles an error during assets downloading.', async () => {
     const page = await readFile(getFixturePath('ru-hexlet-io-courses-with-image.html'));
 
-    nock('https://ru.hexlet.io')
+    nock(basePath)
       .get('/courses')
       .reply(200, page);
 
-    nock('https://ru.hexlet.io')
+    nock(basePath)
       .get('/assets/professions/nodejs.png')
       .replyWithFile(404, getFixturePath('nodejs.png'), {
         'Content-Type': 'image/png',
@@ -137,11 +139,11 @@ describe('page-loader', () => {
   test('Handles an error during assets saving.', async () => {
     const page = await readFile(getFixturePath('ru-hexlet-io-courses-with-image.html'));
 
-    nock('https://ru.hexlet.io')
+    nock(basePath)
       .get('/courses')
       .reply(200, page);
 
-    nock('https://ru.hexlet.io')
+    nock(basePath)
       .get('/assets/professions/nodejs.png')
       .replyWithFile(200, getFixturePath('nodejs.png'), {
         'Content-Type': 'image/png',
@@ -154,29 +156,29 @@ describe('page-loader', () => {
     const page = await readFile(getFixturePath('ru-hexlet-io-courses-with-assets.html'));
     const expectedPage = await readFile(getFixturePath(path.join('expected', 'ru-hexlet-io-courses-with-assets.html')));
 
-    nock('https://ru.hexlet.io')
+    nock(basePath)
       .get('/courses')
       .reply(200, page);
 
-    nock('https://ru.hexlet.io')
+    nock(basePath)
       .get('/courses')
       .replyWithFile(200, getFixturePath('ru-hexlet-io-courses-with-assets.html'), {
         'Content-Type': 'text/html',
       });
 
-    nock('https://ru.hexlet.io')
+    nock(basePath)
       .get('/assets/application.css')
       .replyWithFile(200, getFixturePath('application.css'), {
         'Content-Type': 'text/css',
       });
 
-    nock('https://ru.hexlet.io')
+    nock(basePath)
       .get('/assets/professions/nodejs.png')
       .replyWithFile(200, getFixturePath('nodejs.png'), {
         'Content-Type': 'image/png',
       });
 
-    nock('https://ru.hexlet.io')
+    nock(basePath)
       .get('/packs/js/runtime.js')
       .replyWithFile(200, getFixturePath('runtime.js'), {
         'Content-Type': 'text/javascript',
