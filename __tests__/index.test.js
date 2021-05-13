@@ -9,7 +9,6 @@ import os from 'os';
 import path from 'path';
 import { promises as fs } from 'fs';
 import nock from 'nock';
-import cheerio from 'cheerio';
 import loadPage from '../src';
 
 let tmpDir;
