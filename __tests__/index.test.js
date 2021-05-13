@@ -200,6 +200,6 @@ describe('page-loader', () => {
 
     await expect(fs.access(assetsFolderPath)).resolves.toBe(undefined);
     await expect(Promise.all(requests)).resolves.toEqual(expect.arrayContaining([undefined]));
-    expect(processedPage).toBe(cheerio.load(expectedPage).html());
+    expect(processedPage).toBe(expectedPage);
   });
 });
