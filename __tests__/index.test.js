@@ -79,7 +79,7 @@ describe('page-loader', () => {
 
   test('Downloads page images, saves it to the asset folder and updates images links in html file.', async () => {
     const page = await readFile(getFixturePath('ru-hexlet-io-courses-with-image.html'));
-    const expectedPage = await readFile(getFixturePath('ru-hexlet-io-courses-with-image-expected.html'));
+    const expectedPage = await readFile(getFixturePath(path.join('expected', 'ru-hexlet-io-courses-with-image.html')));
 
     nock('https://ru.hexlet.io')
       .get('/courses')
@@ -152,7 +152,7 @@ describe('page-loader', () => {
 
   test('Downloads page assets, saves it to the asset folder and updates assets links in html file.', async () => {
     const page = await readFile(getFixturePath('ru-hexlet-io-courses-with-assets.html'));
-    const expectedPage = await readFile(getFixturePath('ru-hexlet-io-courses-with-assets-expected.html'));
+    const expectedPage = await readFile(getFixturePath(path.join('expected', 'ru-hexlet-io-courses-with-assets.html')));
 
     nock('https://ru.hexlet.io')
       .get('/courses')
