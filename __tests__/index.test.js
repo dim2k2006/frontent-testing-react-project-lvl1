@@ -55,7 +55,7 @@ describe('page-loader', () => {
         'Content-Type': 'image/png',
       });
 
-    const filepath = await loadPage('https://ru.hexlet.io/courses', tmpDir);
+    const filepath = await loadPage(`${basePath}/courses`, tmpDir);
 
     await expect(fs.access(filepath)).resolves.toBe(undefined);
     expect(path.isAbsolute(filepath)).toBeTruthy();
@@ -66,7 +66,7 @@ describe('page-loader', () => {
       .get('/courses')
       .reply(404);
 
-    await expect(loadPage('https://ru.hexlet.io/courses', tmpDir)).rejects.toThrow('Error: Request failed with status code 404');
+    await expect(loadPage(`${basePath}/courses`, tmpDir)).rejects.toThrow('Error: Request failed with status code 404');
   });
 
   test('Handles an error during page saving.', async () => {
@@ -76,7 +76,7 @@ describe('page-loader', () => {
       .get('/courses')
       .reply(200, page);
 
-    await expect(loadPage('https://ru.hexlet.io/courses', 'non-existing-folder')).rejects.toThrow(/ENOENT/);
+    await expect(loadPage(`${basePath}/courses`, 'non-existing-folder')).rejects.toThrow(/ENOENT/);
   });
 
   test('Downloads page images, saves it to the asset folder and updates images links in html file.', async () => {
@@ -93,7 +93,7 @@ describe('page-loader', () => {
         'Content-Type': 'image/png',
       });
 
-    const filepath = await loadPage('https://ru.hexlet.io/courses', tmpDir);
+    const filepath = await loadPage(`${basePath}/courses`, tmpDir);
 
     const assetsFolderPath = getAssetsFolderPath(filepath);
     const assetFilePath = path.join(assetsFolderPath, 'ru-hexlet-io-assets-professions-nodejs.png');
@@ -117,7 +117,7 @@ describe('page-loader', () => {
         'Content-Type': 'image/png',
       });
 
-    await expect(loadPage('https://ru.hexlet.io/courses', 'non-existing-folder')).rejects.toThrow(/ENOENT/);
+    await expect(loadPage(`${basePath}/courses`, 'non-existing-folder')).rejects.toThrow(/ENOENT/);
   });
 
   test('Handles an error during assets downloading.', async () => {
@@ -133,7 +133,7 @@ describe('page-loader', () => {
         'Content-Type': 'image/png',
       });
 
-    await expect(loadPage('https://ru.hexlet.io/courses', tmpDir)).rejects.toThrow('Error: Request failed with status code 404');
+    await expect(loadPage(`${basePath}/courses`, tmpDir)).rejects.toThrow('Error: Request failed with status code 404');
   });
 
   test('Handles an error during assets saving.', async () => {
@@ -149,7 +149,7 @@ describe('page-loader', () => {
         'Content-Type': 'image/png',
       });
 
-    await expect(loadPage('https://ru.hexlet.io/courses', '/sys')).rejects.toThrow();
+    await expect(loadPage(`${basePath}/courses`, '/sys')).rejects.toThrow();
   });
 
   test('Downloads page assets, saves it to the asset folder and updates assets links in html file.', async () => {
@@ -184,7 +184,7 @@ describe('page-loader', () => {
         'Content-Type': 'text/javascript',
       });
 
-    const filepath = await loadPage('https://ru.hexlet.io/courses', tmpDir);
+    const filepath = await loadPage(`${basePath}/courses`, tmpDir);
 
     const assetsFolderPath = getAssetsFolderPath(filepath);
     const assetsPaths = [
