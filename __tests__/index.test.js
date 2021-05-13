@@ -101,7 +101,7 @@ describe('page-loader', () => {
 
     await expect(fs.access(assetsFolderPath)).resolves.toBe(undefined);
     await expect(fs.access(assetFilePath)).resolves.toBe(undefined);
-    expect(processedPage).toBe(cheerio.load(expectedPage).html());
+    expect(processedPage).toBe(expectedPage);
   });
 
   test('Handles an error during assets folder creation.', async () => {
