@@ -82,7 +82,7 @@ const transformString = (string) => {
   return result;
 };
 
-const getAssetFileName = (assetUrl, baseUrl) => {
+export const getAssetFileName = (assetUrl, baseUrl) => {
   const absoluteAssetUrl = new URL(assetUrl, baseUrl).pathname; // /assets/professions/nodejs.png
   const { dir, name, ext } = path.parse(absoluteAssetUrl);
 

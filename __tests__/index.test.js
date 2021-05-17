@@ -9,7 +9,7 @@ import os from 'os';
 import path from 'path';
 import { promises as fs } from 'fs';
 import nock from 'nock';
-import loadPage from '../src';
+import loadPage, { getAssetFileName } from '../src';
 
 let tmpDir;
 
@@ -127,7 +127,7 @@ describe('page-loader', () => {
     await expect(loadPage(`${basePath}/courses`, '/sys')).rejects.toThrow();
   });
 
-  test('Downloads page assets, saves it to the asset folder and updates assets links in html file.', async () => {
+  test.each(files)('Downloads page assets, saves it to the asset folder and updates assets links in html file.', async (file) => {
     const page = await readFile(getFixturePath('ru-hexlet-io-courses-with-assets.html'));
     const expectedPage = await readFile(getFixturePath(path.join('expected', 'ru-hexlet-io-courses-with-assets.html')));
 
@@ -142,21 +142,15 @@ describe('page-loader', () => {
       });
 
     const filepath = await loadPage(`${basePath}/courses`, tmpDir);
-
     const assetsFolderPath = getAssetsFolderPath(filepath);
-    const assetsPaths = [
-      path.join(assetsFolderPath, 'ru-hexlet-io-assets-application.css'),
-      path.join(assetsFolderPath, 'ru-hexlet-io-courses.html'),
-      path.join(assetsFolderPath, 'ru-hexlet-io-assets-professions-nodejs.png'),
-      path.join(assetsFolderPath, 'ru-hexlet-io-packs-js-runtime.js'),
-    ];
 
-    const requests = assetsPaths.map((assetPath) => fs.access(assetPath));
-
+    const assetName = getAssetFileName(`${file.url}/${file.filename}`, basePath);
+    const assetPath = path.join(assetsFolderPath, assetName);
     const processedPage = await readFile(filepath);
 
     await expect(fs.access(assetsFolderPath)).resolves.toBe(undefined);
-    await expect(Promise.all(requests)).resolves.toEqual(expect.arrayContaining([undefined]));
+    await expect(fs.access(assetPath)).resolves.toBe(undefined);
+
     expect(processedPage).toBe(expectedPage);
   });
 });
