@@ -175,7 +175,7 @@ const loadPage = (pageUrl, destPath = process.cwd()) => {
       const requests = assetsLinks.map((assetLink) => axios.get(assetLink, { responseType: 'arraybuffer' }));
 
       Promise.all(requests)
-        .catch((error) => reject(error))
+        .catch(reject)
         .then((responses) => resolve({ data, assetsResponses: responses }));
     }))
     // Save assets
