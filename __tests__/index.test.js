@@ -42,6 +42,8 @@ const mockFiles = () => files.forEach((file) => {
     });
 });
 
+const pageErrors = [404, 500];
+
 describe('page-loader', () => {
   afterAll(() => {
     nock.restore();
@@ -70,12 +72,12 @@ describe('page-loader', () => {
     expect(path.isAbsolute(filepath)).toBeTruthy();
   });
 
-  test('Handles an error during page downloading.', async () => {
+  test.each(pageErrors)('Handles a %d error during page downloading.', async (status) => {
     nock(basePath)
       .get('/courses')
-      .reply(404);
+      .reply(status);
 
-    await expect(loadPage(`${basePath}/courses`, tmpDir)).rejects.toThrow('Error: Request failed with status code 404');
+    await expect(loadPage(`${basePath}/courses`, tmpDir)).rejects.toThrow(`Error: Request failed with status code ${status}`);
   });
 
   test('Handles an error during page saving.', async () => {
