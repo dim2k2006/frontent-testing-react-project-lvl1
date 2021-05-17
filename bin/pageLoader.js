@@ -11,9 +11,9 @@ program
   .arguments('<pageUrl>')
   .option('-o, --output [dir]', 'output dir', process.cwd())
   .action((pageUrl, options) => loadPage(pageUrl, options.output)
-    .then((filepath) => console.log(filepath))
+    .then((filepath) => console.log(`Page was downloaded into "${filepath}"`))
     .catch((error) => {
-      console.error(error);
+      console.error(error.message);
 
       process.exit(1);
     }));
