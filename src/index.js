@@ -41,21 +41,30 @@ const getBaseUrl = (pageUrl) => {
 const getUrlWithoutProtocol = (resourceUrl) => {
   const url = new URL(resourceUrl);
 
+  const urlParts = [
+    {
+      checker: () => !!url.port,
+      process: (result) => `${result}:${url.port}`,
+    },
+    {
+      checker: () => url.pathname !== '/',
+      process: (result) => `${result}${url.pathname}`,
+    },
+    {
+      checker: () => !!url.search,
+      process: (result) => `${result}${url.search}`,
+    },
+  ];
+
   // https://url.spec.whatwg.org/#url-serializing
   url.toString = () => {
-    let result = `${url.host}`;
+    const result = urlParts.reduce((accumulator, { checker, process }) => {
+      if (!checker()) return accumulator;
 
-    if (url.port) {
-      result = `${result}:${url.port}`;
-    }
+      const newAccumulator = process(accumulator);
 
-    if (url.pathname !== '/') {
-      result = `${result}${url.pathname}`;
-    }
-
-    if (url.search) {
-      result = `${result}${url.search}`;
-    }
+      return newAccumulator;
+    }, url.host);
 
     return result;
   };
